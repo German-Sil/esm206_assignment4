@@ -22,20 +22,21 @@ library(calecopal)
 
  <!-- Open up the data using `read_csv()` -->
  
-```{r}
+```{r, fig.cap= "Figure 1 Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1998 and 2012. The largest number of trappings occured in 1999."}
 snowshoe <- read_csv(here("data", "bonanza_hares.csv"))
 
 snowshoe_traps <- snowshoe %>% 
   mutate(date = mdy(date),
          year = year(date)) %>% 
+  filter(age == "j") %>% 
   group_by(year)
 
 ggplot(snowshoe_traps, aes(x= year)) +
   geom_bar(fill = "#B4AA98")+
-  scale_x_continuous(breaks = 1998:2012) +
+  scale_x_continuous(breaks = 1999:2012) +
   labs(x = "Year of Trapping",
        y = "Number of Snowshoe Hares Traped") +
-  ggtitle("Number of Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+
+  ggtitle("Juvenile Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_rect("#D7DCE4")) 
 ```
