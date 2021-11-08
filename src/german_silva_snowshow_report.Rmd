@@ -1,0 +1,23 @@
+---
+title: "Bonanza Creek Experimental Forest Snowshoe Hares"
+author: "German Silva"
+date: "11/8/2021"
+output: html_document
+---
+
+# Introduction
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Attach proper packages
+library(tidyverse)
+library(here)
+library(janitor)
+library(kableExtra)
+```
+
+ <!-- Open up the data using `read_csv()` -->
+ 
+ 
