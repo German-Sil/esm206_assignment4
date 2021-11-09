@@ -20,16 +20,22 @@ library(lubridate)
 library(calecopal)
 ```
 
- <!-- Open up the data using `read_csv()` -->
+# Juvenile Snowshoe Hare Data Exploration
+
+## Juvenile Snowshoe Hare Trappings Over Time
+ <!-- - Open up the data using `read_csv()`
+      - Create Stats
+      - Make a graph
+      - Obtain Annual Counts
+      -->
  
-```{r, fig.cap= "Figure 1 Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1998 and 2012. The largest number of trappings occured in 1999."}
+```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999."}
 snowshoe <- read_csv(here("data", "bonanza_hares.csv"))
 
 snowshoe_traps <- snowshoe %>% 
   mutate(date = mdy(date),
          year = year(date)) %>% 
-  filter(age == "j") %>% 
-  group_by(year)
+  filter(age == "j")
 
 ggplot(snowshoe_traps, aes(x= year)) +
   geom_bar(fill = "#B4AA98")+
@@ -39,5 +45,20 @@ ggplot(snowshoe_traps, aes(x= year)) +
   ggtitle("Juvenile Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_rect("#D7DCE4")) 
+
+snowshoe_traps_stats <- snowshoe_traps %>% 
+  group_by(year) %>% 
+  summarize(count = n())
 ```
  
+**Takeaways**:
+The number of juvenile snowshoe hares trapped ranged from `r max(as.vector(snowshoe_traps_stats$count))` in 1999 to `r min(as.vector(snowshoe_traps_stats$count))` in 2010. The average number of trapped juveniles is `r mean(as.vector(snowshoe_traps_stats$count))`, with a median of `r median(as.vector(snowshoe_traps_stats$count))`. There is a general trend of a decreasing number of juveniles being trapped since 1999. To standardize the number of trappings (due to effort), trapping campaigns should be a set length of 5 days with a standard number of traps (n=30) with traps being checked twice daily and hares being measured whenever encountered.
+
+## Sex Differences in Juvenile Snowshoe Hare Weight
+
+```{r}
+ggplot(snowshoe_traps, aes(x= sex, y= weight, color = sex)) +
+  geom_jitter()+
+  facet_wrap(~grid)
+```
+
