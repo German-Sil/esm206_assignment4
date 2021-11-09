@@ -1,11 +1,13 @@
 ---
-title: "Bonanza Creek Experimental Forest Snowshoe Hares"
+title: "Bonanza Creek Experimental Forest Snowshoe Hares (SILVA)"
 author: "German Silva"
 date: "11/8/2021"
 output: html_document
 ---
 
 # Introduction
+
+Placeholder text
 
 
 ```{r setup, include=FALSE}
@@ -28,37 +30,101 @@ library(calecopal)
       - Make a graph
       - Obtain Annual Counts
       -->
- 
-```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999."}
+      
+```{r, include=FALSE}
 snowshoe <- read_csv(here("data", "bonanza_hares.csv"))
 
 snowshoe_traps <- snowshoe %>% 
   mutate(date = mdy(date),
          year = year(date)) %>% 
   filter(age == "j")
+```
+
+ 
+```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999."}
 
 ggplot(snowshoe_traps, aes(x= year)) +
-  geom_bar(fill = "#B4AA98")+
+  geom_bar(fill = "#DCD6C5", alpha = 0.95)+
   scale_x_continuous(breaks = 1999:2012) +
   labs(x = "Year of Trapping",
        y = "Number of Snowshoe Hares Traped") +
   ggtitle("Juvenile Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+
   theme(plot.title = element_text(hjust = 0.5),
-        panel.background = element_rect("#D7DCE4")) 
+        plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey")) 
 
 snowshoe_traps_stats <- snowshoe_traps %>% 
   group_by(year) %>% 
   summarize(count = n())
 ```
- 
-**Takeaways**:
+
 The number of juvenile snowshoe hares trapped ranged from `r max(as.vector(snowshoe_traps_stats$count))` in 1999 to `r min(as.vector(snowshoe_traps_stats$count))` in 2010. The average number of trapped juveniles is `r mean(as.vector(snowshoe_traps_stats$count))`, with a median of `r median(as.vector(snowshoe_traps_stats$count))`. There is a general trend of a decreasing number of juveniles being trapped since 1999. To standardize the number of trappings (due to effort), trapping campaigns should be a set length of 5 days with a standard number of traps (n=30) with traps being checked twice daily and hares being measured whenever encountered.
 
 ## Sex Differences in Juvenile Snowshoe Hare Weight
 
-```{r}
-ggplot(snowshoe_traps, aes(x= sex, y= weight, color = sex)) +
-  geom_jitter()+
-  facet_wrap(~grid)
+<!-- Exploring normality and other features of the data-->
+
+```{r, include = FALSE}
+ggplot(snowshoe_traps, aes(x=weight))+
+  geom_histogram()+
+  facet_wrap(~sex)
+
+ggplot(snowshoe_traps, aes(sample=weight))+
+  geom_qq()+
+  facet_wrap(~sex)
 ```
+
+<!-- Based on the Histograms and QQ plots for weights for each sex of the Snowshoe hares, we can run with the assumption of normality (especially of the means with Central Limit Theorem). -->
+
+```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site." }
+ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
+  geom_boxplot(alpha = 0.95)+
+  facet_wrap(~grid) +
+  labs(y = "Body Mass (g)",
+       x= "Sex")+
+  scale_fill_manual(values = cal_palette("coastaldune1", n= 3, type = "discrete"), 
+                    labels = c("Female", "Male", "N/A"),
+                    name = "Sex") +
+  scale_x_discrete(labels = c("Female", "Male", "N/A")) +
+  ggtitle("Snowshoe Hare Body Mass by Sex Across Site (SILVA)") +
+  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
+```
+
+The data shows that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Bonbs had a greater median body mass than those caught at other sites. 
+
+```{r}
+snowshoe_traps_summary <- snowshoe_traps %>% 
+  group_by(sex) %>% 
+  summarize(mean_body_mass = round(mean(weight, na.rm = TRUE), 2),
+            body_mas_sd = round(sd(weight, na.rm = TRUE), 2),
+            sample_size = n())
+
+kable(snowshoe_traps_summary,
+       caption = "Table 1 Snowshoe Hare Body Mass Summary Statistics", # makes caption for table
+      col.names = c("Sex",
+                    "Mean Body Mass (g)",
+                    "Standard Deviation (g)",
+                    "Sample Size")) %>% # changes column names
+  kable_classic(full_width = FALSE)
+```
+
+```{r, include=FALSE}
+
+
+snowshoe_males <- snowshoe_traps %>% 
+  filter(sex == "m") %>% 
+  select(sex, weight) 
+
+snowshoe_females <- snowshoe_traps %>% 
+  filter(sex == "f") %>% 
+  select(sex, weight) %>% 
+  na.omit()
+
+cohen_d <- effsize::cohen.d(snowshoe_males$weight, snowshoe_females$weight)
+
+t_test <- t.test(snowshoe_males$weight, snowshoe_females$weight)
+```
+
+
+
+There are several ways that we can determine that the body mass of male and female snowshoe hares are different. First, we can directly compare mean body mass. Male snowshoe hares have a mean of `r snowshoe_traps_summary$mean_body_mass[2]` g, while females have a mean body mass of `r snowshoe_traps_summary$mean_body_mass[1]` g (a difference of `r snowshoe_traps_summary$mean_body_mass[2] - snowshoe_traps_summary$mean_body_mass[1]` g; Table 1). Second, we can use Cohen's d to see how many standard deviations apart the two means are. A Cohen's d of `r round(cohen_d$estimate, 2)` shows that the two group means are `r round(cohen_d$estimate, 2)` standard deviations apart, indicating that there is a difference between the two groups but it is hard to tell by if we looked at histograms of the data. Third is a t-test comparing the two groups. A t-test returns a p-value of `r round(t_test$p.value, 3)` meaning that if male and female juvenile snowshoes hares had the same mean body mass, there is a `r round(t_test$p.value, 3) * 100`% chance that we would draw a sample with means at least this different. As this is below a 95% confidence level, we would reject that their means are the same as that probability is too unlikely. All comparisons indicate that there is a statistically signficant and true difference in body mass between male and female snowshoe hares. 
 
