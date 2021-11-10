@@ -54,7 +54,7 @@ snowshoe_traps <- snowshoe %>%
 ```
 
  
-```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999.", fig.align='center'}
+```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999. Data: Kielland *et al*. (2017)", fig.align='center'}
 
 ggplot(snowshoe_traps, aes(x= year)) +
   geom_bar(color = "black",fill = "#DCD6C5", alpha = 0.95)+
@@ -88,7 +88,7 @@ ggplot(snowshoe_traps, aes(sample=weight))+
 
 <!-- Based on the Histograms and QQ plots for weights for each sex of the Snowshoe hares, we can run with the assumption of normality (especially of the means with Central Limit Theorem). A t-test should be able to be preformed on this data -->
 
-```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site.", fig.align='center'}
+```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site. Data: Kielland *et al* (2017).", fig.align='center'}
 ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
   geom_boxplot(alpha = 0.95)+
   facet_wrap(~grid) +
@@ -102,7 +102,7 @@ ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
   theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
 ```
 
-The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Black Spruce site had a greater median body mass than those caught at other sites. 
+The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in the Black Spruce site had a greater median body mass than those caught at other sites. 
 
 ```{r}
 snowshoe_traps_summary <- snowshoe_traps %>% 
@@ -112,12 +112,12 @@ snowshoe_traps_summary <- snowshoe_traps %>%
             sample_size = n())
 
 kable(snowshoe_traps_summary,
-       caption = "Table 1 Snowshoe Hare Body Mass Summary Statistics", # makes caption for table
+       caption = "Table 1 Snowshoe Hare Body Mass Summary Statistics Data: Kielland *et al* (2017)", # makes caption for table
       col.names = c("Sex",
                     "Mean Body Mass (g)",
                     "Standard Deviation (g)",
                     "Sample Size")) %>% # changes column names
-  kable_classic(full_width=FALSE)
+  kable_classic()
 ```
 
 ```{r, include=FALSE}
@@ -143,7 +143,7 @@ There are several ways that we can determine that the body mass of male and fema
 
 ## Is there a relationship between Juvenile Snowshoe Hare Body Mass and Hind Foot Length?
 
-```{r, fig.align='center', fig.cap="**Figure 3** Scatter plot showing hind foot length (mm) vs. body mass (g) for juvenile snowshoe hares. General shape of the plot implies a positive relationship is present between the two variables."}
+```{r, fig.align='center', fig.cap="**Figure 3** Scatter plot showing hind foot length (mm) vs. body mass (g) for juvenile snowshoe hares. General shape of the plot implies a positive relationship is present between the two variables. Data: Kielland *et al* (2017)."}
 ggplot(data = snowshoe_traps, aes(x= hindft, y = weight))+
   geom_point(shape = 21,color= "black", fill= cal_palette("coastaldune1", n=1, type = "discrete")) +
   labs(x = "Hind Foot Length (mm)",
