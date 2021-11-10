@@ -9,9 +9,11 @@ output:
 
 # Introduction
 
-Placeholder text
+This report looks at juvenile snowshoe hares, *Lepus americanus*, from a study done in Bonanza Creek Long-term Ecological Research (LTER) site in Alaska by Kielland *et al*. (2017). Snowshoe hares are an important prey species in northern boreal forest systems and have a cyclical population cycle (fluctuating every 8-11 years). Kielland *et al*.'s purpose was to try to determine population metrics at the landscape scale for juvenile snowshoe hares. In this report you will find an overview of the number of juvenile hares trapped, the difference in body mass across sites and sex, and the analysis of the relationship between hare hind foot length and body mass. 
 
 # Data and Analyses
+
+The data used in this report comes from Kielland *et al*.'s 2017 update of a study looking at snowshoe hares in Bonanza Creek LTER in Alaska. The variables from the data set that are the focus of this report are the hares' age (juvenile or not), weight (g), sex, hind foot length (hindft, mm), and site of trapping (grid). Three main analyses were preformed: 1) number of juveniles trapped over time, 2) body mass between sexes and across sites, and 3) the relationship between hind foot length and body mass. Main statistical techniques used to accomplish theses analyses include: 1) histograms, 2) qqplots, 3) descriptive statistics (mean, median, max, standard deviation, etc.), 4) boxplots, and 5) linear models (and associated diagnostics).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -44,7 +46,11 @@ snowshoe <- read_csv(here("data", "bonanza_hares.csv"))
 snowshoe_traps <- snowshoe %>% 
   mutate(date = mdy(date),
          year = year(date)) %>% 
-  filter(age == "j")
+  filter(age == "j") %>% 
+  mutate(grid = case_when(
+    grid == "bonbs" ~ "Black Spruce",
+    grid == "bonmat" ~ "Mature",
+    grid == "bonrip" ~ "Riparian"))
 ```
 
  
@@ -96,7 +102,7 @@ ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
   theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
 ```
 
-The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Bonanza trapping site had a greater median body mass than those caught at other sites. 
+The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Black Spruce site had a greater median body mass than those caught at other sites. 
 
 ```{r}
 snowshoe_traps_summary <- snowshoe_traps %>% 
@@ -159,6 +165,14 @@ correlation <- cor.test(snowshoe_traps$hindft, snowshoe_traps$weight)
 When preforming a linear regression, the formula:`r extract_eq(model= snowshoe_lm, use_coefs = TRUE)` is used to describe the relationship between snowshoe hare hind foot length and body mass, with an R^2^ of `r round(model_summary$r.squared, 3)`, and a Pearson's r value of `r round(correlation$estimate, 3)`. We would interpret the slope coefficient of `r round(snowshoe_lm$coefficients[2], 2)` to mean that on average we would expect for every millimeter increase in hind foot length that body mass would increase by `r round(snowshoe_lm$coefficients[2], 2)` g, the R^2^ value as `r round(model_summary$r.squared, 3) * 100`% of the variance between the two variables is explained by the model, and Pearson's r as `r round(correlation$estimate, 3) * 100`% of the change in body mass is explained by a change in hind foot length. Diagnostic plots indicate that residual normality and homoscedasticity maybe a concern when performing a linear model between these two variables. A linear model does not capture the frame of the relationship well due to the potential violation of assumptions and the moderate to low explanation in change and variance between the two variables by the model itself. 
 
 # Summary
+
+In summary:
+
+- A large number of trappings occurred in 1999, with a general trend of fewer hares being trapped as time went on
+- There is a statistically significant difference between male and female body mass (p-value = `r round(t_test$p.value, 3)`)
+  - Boxplots imply that there is also a difference between median body mass across sites, especially Black Spruce  vs the Bonanza mature and riparian sites
+- There is a moderate positive correlation between hind foot length and hare body mass (r = `r round(correlation$estimate, 3)`)
+  - However, a linear model may not be the best representation of this relationship due to potential violation of assumptions (determined from diagnostic plots) and low explanatory power for variance by the model (R^2^ = `r round(model_summary$r.squared, 3)`)
 
 # References
 
