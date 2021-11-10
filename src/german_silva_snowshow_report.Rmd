@@ -2,13 +2,16 @@
 title: "Bonanza Creek Experimental Forest Snowshoe Hares (SILVA)"
 author: "German Silva"
 date: "11/8/2021"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
 ---
 
 # Introduction
 
 Placeholder text
 
+# Data and Analyses
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
@@ -20,7 +23,11 @@ library(janitor)
 library(kableExtra)
 library(lubridate)
 library(calecopal)
+library(equatiomatic)
+library(broom)
 ```
+
+
 
 # Juvenile Snowshoe Hare Data Exploration
 
@@ -41,10 +48,10 @@ snowshoe_traps <- snowshoe %>%
 ```
 
  
-```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999."}
+```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999.", fig.align='center'}
 
 ggplot(snowshoe_traps, aes(x= year)) +
-  geom_bar(fill = "#DCD6C5", alpha = 0.95)+
+  geom_bar(color = "black",fill = "#DCD6C5", alpha = 0.95)+
   scale_x_continuous(breaks = 1999:2012) +
   labs(x = "Year of Trapping",
        y = "Number of Snowshoe Hares Traped") +
@@ -73,9 +80,9 @@ ggplot(snowshoe_traps, aes(sample=weight))+
   facet_wrap(~sex)
 ```
 
-<!-- Based on the Histograms and QQ plots for weights for each sex of the Snowshoe hares, we can run with the assumption of normality (especially of the means with Central Limit Theorem). -->
+<!-- Based on the Histograms and QQ plots for weights for each sex of the Snowshoe hares, we can run with the assumption of normality (especially of the means with Central Limit Theorem). A t-test should be able to be preformed on this data -->
 
-```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site." }
+```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site.", fig.align='center'}
 ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
   geom_boxplot(alpha = 0.95)+
   facet_wrap(~grid) +
@@ -89,7 +96,7 @@ ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
   theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
 ```
 
-The data shows that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Bonbs had a greater median body mass than those caught at other sites. 
+The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in Bonanza trapping site had a greater median body mass than those caught at other sites. 
 
 ```{r}
 snowshoe_traps_summary <- snowshoe_traps %>% 
@@ -104,7 +111,7 @@ kable(snowshoe_traps_summary,
                     "Mean Body Mass (g)",
                     "Standard Deviation (g)",
                     "Sample Size")) %>% # changes column names
-  kable_classic(full_width = FALSE)
+  kable_classic(full_width=FALSE)
 ```
 
 ```{r, include=FALSE}
@@ -126,5 +133,53 @@ t_test <- t.test(snowshoe_males$weight, snowshoe_females$weight)
 
 
 
-There are several ways that we can determine that the body mass of male and female snowshoe hares are different. First, we can directly compare mean body mass. Male snowshoe hares have a mean of `r snowshoe_traps_summary$mean_body_mass[2]` g, while females have a mean body mass of `r snowshoe_traps_summary$mean_body_mass[1]` g (a difference of `r snowshoe_traps_summary$mean_body_mass[2] - snowshoe_traps_summary$mean_body_mass[1]` g; Table 1). Second, we can use Cohen's d to see how many standard deviations apart the two means are. A Cohen's d of `r round(cohen_d$estimate, 2)` shows that the two group means are `r round(cohen_d$estimate, 2)` standard deviations apart, indicating that there is a difference between the two groups but it is hard to tell by if we looked at histograms of the data. Third is a t-test comparing the two groups. A t-test returns a p-value of `r round(t_test$p.value, 3)` meaning that if male and female juvenile snowshoes hares had the same mean body mass, there is a `r round(t_test$p.value, 3) * 100`% chance that we would draw a sample with means at least this different. As this is below a 95% confidence level, we would reject that their means are the same as that probability is too unlikely. All comparisons indicate that there is a statistically signficant and true difference in body mass between male and female snowshoe hares. 
+There are several ways that we can determine that the body mass of male and female snowshoe hares are different. First, we can directly compare mean body mass. Male snowshoe hares have a mean of `r snowshoe_traps_summary$mean_body_mass[2]` g, while females have a mean body mass of `r snowshoe_traps_summary$mean_body_mass[1]` g (a difference of `r snowshoe_traps_summary$mean_body_mass[2] - snowshoe_traps_summary$mean_body_mass[1]` g; Table 1). Second, we can use Cohen's d to see how many standard deviations apart the two means are. A Cohen's d of `r round(cohen_d$estimate, 2)` shows that the two group means are `r round(cohen_d$estimate, 2)` standard deviations apart, indicating that there is a difference between the two groups but it is hard to tell by if we looked at histograms of the data. Third is a t-test comparing the two groups. A t-test returns a p-value of `r round(t_test$p.value, 3)` meaning that if male and female juvenile snowshoes hares had the same mean body mass, there is a `r round(t_test$p.value, 3) * 100`% chance that we would draw a sample with means at least this different. As this is below a 95% confidence level, we would reject that their means are the same as that probability is too unlikely. All comparisons indicate that there is a statistically significant and true difference in body mass between male and female snowshoe hares. 
 
+## Is there a relationship between Juvenile Snowshoe Hare Body Mass and Hind Foot Length?
+
+```{r, fig.align='center', fig.cap="**Figure 3** Scatter plot showing hind foot length (mm) vs. body mass (g) for juvenile snowshoe hares. General shape of the plot implies a positive relationship is present between the two variables."}
+ggplot(data = snowshoe_traps, aes(x= hindft, y = weight))+
+  geom_point(shape = 21,color= "black", fill= cal_palette("coastaldune1", n=1, type = "discrete")) +
+  labs(x = "Hind Foot Length (mm)",
+       y = "Body Mass (g)") +
+  ggtitle("Juvenile Snowshoe Hare Hind Foot Length vs. Body Mass (SILVA)")+
+  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
+  
+```
+```{r, include = FALSE}
+snowshoe_lm <- lm(weight ~ hindft, snowshoe_traps)
+
+plot(snowshoe_lm)
+
+model_summary <- glance(snowshoe_lm)
+
+correlation <- cor.test(snowshoe_traps$hindft, snowshoe_traps$weight)
+```
+
+When preforming a linear regression, the formula:`r extract_eq(model= snowshoe_lm, use_coefs = TRUE)` is used to describe the relationship between snowshoe hare hind foot length and body mass, with an R^2^ of `r round(model_summary$r.squared, 3)`, and a Pearson's r value of `r round(correlation$estimate, 3)`. We would interpret the slope coefficient of `r round(snowshoe_lm$coefficients[2], 2)` to mean that on average we would expect for every millimeter increase in hind foot length that body mass would increase by `r round(snowshoe_lm$coefficients[2], 2)` g, the R^2^ value as `r round(model_summary$r.squared, 3) * 100`% of the variance between the two variables is explained by the model, and Pearson's r as `r round(correlation$estimate, 3) * 100`% of the change in body mass is explained by a change in hind foot length. Diagnostic plots indicate that residual normality and homoscedasticity maybe a concern when performing a linear model between these two variables. A linear model does not capture the frame of the relationship well due to the potential violation of assumptions and the moderate to low explanation in change and variance between the two variables by the model itself. 
+
+# Summary
+
+# References
+
+Anderson, Daniel, Heiss, Andrew and Sumners, Jay (2021). "equatiomatic: Transform Models into   'LaTeX' Equations." R package version 0.3.0. https://CRAN.R-project.org/package=equatiomatic
+  
+Bui, An, Lowman, Heili, Guerra, Ana Sofia, and Miller-ter Kuile, Ana (2021). "calecopal: A California-inspired Package of Color Palettes." R package version 0.1.0.
+
+Firke, Sam (2021). "janitor: Simple Tools for Examining and Cleaning Dirty Data." R package version 2.1.0. https://CRAN.R-project.org/package=janitor
+
+Grolemund, Garrett and Wickham, Hadley (2011). "Dates and Times Made Easy with lubridate. Journal of Statistical Software, 40(3), 1-25. URL https://www.jstatsoft.org/v40/i03/
+
+Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER (2017). "Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22." Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
+
+Müller, Kirill (2020). "here: A Simpler Way to Find Your Files." R package version 1.0.1.
+  https://CRAN.R-project.org/package=here
+  
+Robinson, David, Hayes, Alex and Couch, Simon (2021). "broom: Convert Statistical Objects
+  into Tidy Tibbles." R package version 0.7.10. https://CRAN.R-project.org/package=broom
+
+Wickham et al., (2019). "Welcome to the tidyverse." Journal of Open Source Software,
+  4(43), 1686, https://doi.org/10.21105/joss.01686
+
+Zhu, Hao (2021). "kableExtra: Construct Complex Table with 'kable' and Pipe Syntax." R
+  package version 1.3.4. https://CRAN.R-project.org/package=kableExtra
