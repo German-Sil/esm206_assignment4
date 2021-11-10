@@ -41,33 +41,33 @@ library(broom)
       -->
       
 ```{r, include=FALSE}
-snowshoe <- read_csv(here("data", "bonanza_hares.csv"))
+snowshoe <- read_csv(here("data", "bonanza_hares.csv")) # read in data
 
 snowshoe_traps <- snowshoe %>% 
   mutate(date = mdy(date),
-         year = year(date)) %>% 
-  filter(age == "j") %>% 
-  mutate(grid = case_when(
+         year = year(date)) %>% # convert class to Date 
+  filter(age == "j") %>%  # get all juveniles
+  mutate(grid = case_when( 
     grid == "bonbs" ~ "Black Spruce",
     grid == "bonmat" ~ "Mature",
-    grid == "bonrip" ~ "Riparian"))
+    grid == "bonrip" ~ "Riparian")) # change site names to full names
 ```
 
  
 ```{r, fig.cap= "**Figure 1** Bar graph showing the amount of juvenile snowshoe hares trapped in Bonanza Creek Experimental Forest over time between 1999 and 2012. The largest number of trappings occured in 1999. Data: Kielland *et al*. (2017)", fig.align='center'}
 
-ggplot(snowshoe_traps, aes(x= year)) +
-  geom_bar(color = "black",fill = "#DCD6C5", alpha = 0.95)+
-  scale_x_continuous(breaks = 1999:2012) +
+ggplot(snowshoe_traps, aes(x= year)) + 
+  geom_bar(color = "black",fill = "#DCD6C5", alpha = 0.95)+ # make a bar graph that is slightly seethrough and is outlined
+  scale_x_continuous(breaks = 1999:2012) + # sets the scale so that there are no awkward gaps on the edges
   labs(x = "Year of Trapping",
        y = "Number of Snowshoe Hares Traped") +
-  ggtitle("Juvenile Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+
+  ggtitle("Juvenile Snowshoe Hares Trapped Between 1998-2012 (SILVA)")+ # labels and title
   theme(plot.title = element_text(hjust = 0.5),
-        plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey")) 
+        plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey")) # theme edits
 
 snowshoe_traps_stats <- snowshoe_traps %>% 
   group_by(year) %>% 
-  summarize(count = n())
+  summarize(count = n()) # obtain stats to make max and other type of measures
 ```
 
 The number of juvenile snowshoe hares trapped ranged from `r max(as.vector(snowshoe_traps_stats$count))` in 1999 to `r min(as.vector(snowshoe_traps_stats$count))` in 2010. The average number of trapped juveniles is `r mean(as.vector(snowshoe_traps_stats$count))`, with a median of `r median(as.vector(snowshoe_traps_stats$count))`. There is a general trend of a decreasing number of juveniles being trapped since 1999. To standardize the number of trappings (due to effort), trapping campaigns should be a set length of 5 days with a standard number of traps (n=30) with traps being checked twice daily and hares being measured whenever encountered.
@@ -90,26 +90,26 @@ ggplot(snowshoe_traps, aes(sample=weight))+
 
 ```{r, fig.cap= "**Figure 2** Boxplots showing distributions of body mass in grams for male and female snowshoe hares across sites. Boxes represent the middle 50% of all weight observations per site. Data: Kielland *et al* (2017).", fig.align='center'}
 ggplot(snowshoe_traps, aes(x= sex, y = weight, fill = sex)) +
-  geom_boxplot(alpha = 0.95)+
-  facet_wrap(~grid) +
+  geom_boxplot(alpha = 0.95)+ # makes a boxplot graph
+  facet_wrap(~grid) + # facet wrap the graphs
   labs(y = "Body Mass (g)",
-       x= "Sex")+
+       x= "Sex")+ # label definitions
   scale_fill_manual(values = cal_palette("coastaldune1", n= 3, type = "discrete"), 
                     labels = c("Female", "Male", "N/A"),
-                    name = "Sex") +
-  scale_x_discrete(labels = c("Female", "Male", "N/A")) +
-  ggtitle("Snowshoe Hare Body Mass by Sex Across Site (SILVA)") +
-  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
+                    name = "Sex") + # colors, lables, and names for the legend
+  scale_x_discrete(labels = c("Female", "Male", "N/A")) + # x-axis tick labels
+  ggtitle("Snowshoe Hare Body Mass by Sex Across Site (SILVA)") + # title
+  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey")) # theme edits
 ```
 
 The boxplots show that there is a difference in body mass between sexes and across sites in the juvenile snowshoe hares trapped and measured. Median body mass for male hares is greater than that of female hares across sites. However, hares trapped in the Black Spruce site had a greater median body mass than those caught at other sites. 
 
 ```{r}
 snowshoe_traps_summary <- snowshoe_traps %>% 
-  group_by(sex) %>% 
+  group_by(sex) %>%  # group by sex
   summarize(mean_body_mass = round(mean(weight, na.rm = TRUE), 2),
             body_mas_sd = round(sd(weight, na.rm = TRUE), 2),
-            sample_size = n())
+            sample_size = n()) # summarize data
 
 kable(snowshoe_traps_summary,
        caption = "Table 1 Snowshoe Hare Body Mass Summary Statistics Data: Kielland *et al* (2017)", # makes caption for table
@@ -117,7 +117,7 @@ kable(snowshoe_traps_summary,
                     "Mean Body Mass (g)",
                     "Standard Deviation (g)",
                     "Sample Size")) %>% # changes column names
-  kable_classic()
+  kable_classic() # theme for kable()
 ```
 
 ```{r, include=FALSE}
@@ -145,21 +145,21 @@ There are several ways that we can determine that the body mass of male and fema
 
 ```{r, fig.align='center', fig.cap="**Figure 3** Scatter plot showing hind foot length (mm) vs. body mass (g) for juvenile snowshoe hares. General shape of the plot implies a positive relationship is present between the two variables. Data: Kielland *et al* (2017)."}
 ggplot(data = snowshoe_traps, aes(x= hindft, y = weight))+
-  geom_point(shape = 21,color= "black", fill= cal_palette("coastaldune1", n=1, type = "discrete")) +
+  geom_point(shape = 21,color= "black", fill= cal_palette("coastaldune1", n=1, type = "discrete")) + # sets shape, color, fill, and geometry for graph
   labs(x = "Hind Foot Length (mm)",
        y = "Body Mass (g)") +
-  ggtitle("Juvenile Snowshoe Hare Hind Foot Length vs. Body Mass (SILVA)")+
-  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey"))
+  ggtitle("Juvenile Snowshoe Hare Hind Foot Length vs. Body Mass (SILVA)")+ # labels and title
+  theme(plot.title = element_text(hjust = 0.5), plot.background = element_rect("#D7DCE4"), panel.background = element_rect("white"), panel.grid = element_line("grey")) # theme edits
   
 ```
 ```{r, include = FALSE}
-snowshoe_lm <- lm(weight ~ hindft, snowshoe_traps)
+snowshoe_lm <- lm(weight ~ hindft, snowshoe_traps) # linear model
 
-plot(snowshoe_lm)
+plot(snowshoe_lm) # diagnostics
 
-model_summary <- glance(snowshoe_lm)
+model_summary <- glance(snowshoe_lm) # summary of model
 
-correlation <- cor.test(snowshoe_traps$hindft, snowshoe_traps$weight)
+correlation <- cor.test(snowshoe_traps$hindft, snowshoe_traps$weight) # correlation summary
 ```
 
 When preforming a linear regression, the formula:`r extract_eq(model= snowshoe_lm, use_coefs = TRUE)` is used to describe the relationship between snowshoe hare hind foot length and body mass, with an R^2^ of `r round(model_summary$r.squared, 3)`, and a Pearson's r value of `r round(correlation$estimate, 3)`. We would interpret the slope coefficient of `r round(snowshoe_lm$coefficients[2], 2)` to mean that on average we would expect for every millimeter increase in hind foot length that body mass would increase by `r round(snowshoe_lm$coefficients[2], 2)` g, the R^2^ value as `r round(model_summary$r.squared, 3) * 100`% of the variance between the two variables is explained by the model, and Pearson's r as `r round(correlation$estimate, 3) * 100`% of the change in body mass is explained by a change in hind foot length. Diagnostic plots indicate that residual normality and homoscedasticity maybe a concern when performing a linear model between these two variables. A linear model does not capture the frame of the relationship well due to the potential violation of assumptions and the moderate to low explanation in change and variance between the two variables by the model itself. 
